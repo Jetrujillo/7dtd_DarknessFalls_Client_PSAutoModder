@@ -5,15 +5,9 @@
 .DESCRIPTION
   The script supports hard coded values to point to the mod files .zip folder and 7dtd game path.
   The script will perform some variation of the following (depending on hard coded values): 
-  verifying steam libraries, finding the location of the game files, backing up game files, 
+  verifying steam installation/libraries, finding the location of the game files, backing up game files, 
   downloading the mod if not provided, unpacking and moving mod files to proper locations, 
   and cleanup any dropped files/folders.
-
-.PARAMETER
-  None
-
-.INPUTS
-  None
 
 .OUTPUTS
   Backup folder and temporary working folder created on user Desktop. You may find these at:
@@ -23,10 +17,10 @@
   ~\Desktop\7dtdModFolder\darknessfallsa19client-master\
 
 .NOTES
-  Version:        1.0
+  Version:        1.1
   Author:         Justin Trujillo
-  Creation Date:  08/12/2021
-  Purpose/Change: Initial script development
+  Creation Date:  08/20/2021
+  Purpose/Change: Added functionality for default Steam installation path and minor try/catch logic.
   
 .EXAMPLE
   Simply run the script with powershell. If you want/need to point to specific files
@@ -64,6 +58,9 @@ $clientFileName = $clientFileZip.Split(".")[0]
 ##Working path
 $desktopPath = [Environment]::GetFolderPath("Desktop")
 $workingPath = Join-Path $desktopPath "\7dtdModFolder\"
+$bundlePath = Join-Path $workingPath $clientFileZip
+$7dtd_defPath = "C:\Program Files (x86)\Steam\steamapps\common\7 Days To Die\"
+$7dtd_defPathTest = Test-Path $7dtd_defPath
 
 
 #-----------------------------------------------------------[Functions]------------------------------------------------------------
@@ -121,10 +118,8 @@ function BackupFolder($fullPathFolder){
 
 ## Function to download the client mod bundle.
 function DownloadClientBundle($url){
-    New-Item -ItemType Directory -Force -Path $workingPath
-    $destination = Join-Path $workingPath $clientFileZip
-    wget -Uri $url -UseBasicParsing -OutFile $destination
-    return $destination
+    wget -Uri $url -UseBasicParsing -OutFile $bundlePath
+    return $bundlePath
 }
 
 #-----------------------------------------------------------[Execution]------------------------------------------------------------
@@ -151,8 +146,16 @@ if ($hardcode_7dtd -eq "hardcoded"){
         Write-Output "`nProvided path could not be found. Please double check the path for errors or remove to infer game location."
         exit
     }
-    $7dtd_folder = $pathTo_7dtd
+    Set-Variable -Name "7dtd_folder" -Value $pathTo_7dtd
 }
+
+## Determine if default path should be used.
+elseif($7dtd_defPathTest -eq $true){
+    Write-Output "`nFound game at default path. `n`nUsing the following game path:"
+    Set-Variable -Name "7dtd_folder" -Value $7dtd_defPath
+    Write-Output $7dtd_folder
+}
+
 ## Determine if more than 1 library was found.
 elseif ($libCount -gt 1){
     Write-Output "`n--More than 1 steam library found-- `nPlease hard code the exact path where we can find your 7dtd game folder."
@@ -163,11 +166,13 @@ elseif ($libCount -gt 1){
     }
     exit
 }
+
 ## Determine if no libraries were found at all.
 elseif ($libCount -eq 1 -and $libMatches -eq $null){
     Write-Output "Could not find any steam libraries. Please verify steam is installed and a library exists."
     exit
 }
+
 ## Last stage, we will infer where the folder is located based since we didn't get caught earlier.
 else{
     if ($hardcode_7dtd -eq "not hardcoded"){
@@ -199,7 +204,7 @@ elseif ($backupResult -eq $true){
 
 ## Determine method for client mod files reference. If hard coded path not provided, we will download it.
 Write-Output "`nDetermining client mod file stuff..."
-$modfiles = ""
+$modfiles = ''
 if($hardcode_A19 -eq "hardcoded"){
     Write-Output "`nHard coded path provided. Using the following mod file path:"
     Write-Output $pathTo_A19
@@ -208,10 +213,11 @@ if($hardcode_A19 -eq "hardcoded"){
         Write-Output "`nProvided path could not be found. Please double check the path for errors or remove to force download instead."
         exit
     }
-    $modfiles = $pathTo_A19
+     Set-Variable -Name "modfiles" -Value $pathTo_A19
 }
 elseif ($hardcode_A19 -eq "not hardcoded"){
     Write-Output "`Hard coded path not provided. Downloading client mod files from: $clientURL"
+    $null = New-Item -ItemType Directory -Force -Path $workingPath
     $clientDL = DownloadClientBundle($clientURL)
     $clientResult = Test-Path $clientDL
     if ($clientResult -eq $false){
@@ -220,15 +226,23 @@ elseif ($hardcode_A19 -eq "not hardcoded"){
     }
     elseif ($clientResult -eq $true){
         Write-Output "Client mod files successfully downloaded and found at: $clientDL"
-        $modfiles = $clientDL
+        Set-Variable -Name "modfiles" -Value $clientDL
     }
 }
 
 
 ## Unpack Mod Files and overwite current game location files
 Write-Output "`nUnpacking mod files..."
-[string]$source = ($workingPath + "\" + $clientFileZip)
-Expand-Archive -Path $source -DestinationPath $workingPath -Force
+[string]$source = $modfiles
+
+try {
+    Expand-Archive -Path $source -DestinationPath $workingPath -Force
+}
+catch {
+    Write-Host "Unpacking the file has failed. Check if it exists or if the result below has multiple paths."
+    Write-Host $source
+    exit
+}
 
 $expandedModFilePath = Join-Path $workingPath $clientFileName
 $modFolderList = @('7DaysToDie_Data','Data','Mods')
