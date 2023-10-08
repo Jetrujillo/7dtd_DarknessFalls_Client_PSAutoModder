@@ -31,7 +31,7 @@ To switch to a different version of the game:
 ## Running the Script
 You can generally just run the script and it'll auto-detect and mod the game. Status messages will display in the console window during the process.
 
-### Examples
+### Examples via PowerShell console
 Run script to automatically detect current 7DTD game files and auto-download the mod files.
 ```
 .\7dtd_modder.ps1
