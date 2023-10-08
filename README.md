@@ -17,7 +17,9 @@ Set-ExeuctionPolicy restricted
 ```
 
 ### Mod Specific
-Different mod versions will require different versions of the game to be installed. As of 10/08/2023, that means DF B25 requires "alpha21.1 - Alpha 21.1 Stable".
+Different mod versions will require different versions of the game to be installed.
+
+As of 10/08/2023, that means DF B25 requires "alpha21.1 - Alpha 21.1 Stable".
 
 To switch to a different version of the game:
 - Go to your Steam Library
