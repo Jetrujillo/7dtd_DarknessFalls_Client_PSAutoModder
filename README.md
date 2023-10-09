@@ -13,7 +13,7 @@ As a security precaution, please consider setting the execution to something mor
 
 By default, the execution policy is "restricted":
 ```
-Set-ExeuctionPolicy restricted
+Set-ExecutionPolicy restricted
 ```
 
 ### Mod Specific
