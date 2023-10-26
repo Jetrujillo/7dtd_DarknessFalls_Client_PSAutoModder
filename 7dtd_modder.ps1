@@ -34,16 +34,6 @@ Param (
     [string]$ModHardCode = $false
 ) 
 
-## Hard coded path that you can define for the 7dtd game folder. Example below.
-# $pathTo_7dtd = "C:\SteamLibrary\steamapps\common\7 Days To Die\"
-$pathTo_7dtd = ""
-
-
-## Hard coded path that you can define for the mod folder. Example below.
-# $pathTo_A19 = "C:\path\to\file\download\darknessfallsa19client-master.zip"
-
-$pathTo_A19 = ""
-
 #---------------------------------------------##################################################------------------------------
 #---------------------------------------------##!!!!!!!! DO NOT CHANGE ANYTHING BELOW !!!!!!!!##------------------------------
 #---------------------------------------------##################################################------------------------------
@@ -52,12 +42,13 @@ $pathTo_A19 = ""
 ## Known good direct links to client bundle. As of 09/30/2023, we'll use B25.
 #$clientURL = "https://gitlab.com/KhaineGB/darknessfallsa19client/-/archive/master/darknessfallsa19client-master.zip"
 #$clientURL = "http://darknessfallsmod.co.uk/DF-V5-DEV-B26.zip"
-$clientURL = "http://darknessfallsmod.co.uk/DF-V5-DEV-B25.zip"
+#$clientURL = "http://darknessfallsmod.co.uk/DF-V5-DEV-B25.zip"
+$clientURL = "http://darknessfallsmod.co.uk/DF-V5-DEV-B28.zip"
 #$clientFileZip = "darknessfallsa19client-master.zip"
-$clientFileZip = "DF-V5-DEV-B25.zip"
+$clientFileZip = "DF-V5-DEV-B28.zip"
 $clientFileName = $clientFileZip.Split(".")[0]
 
-$modVersion = "B25"
+$modVersion = "B28"
 
 #$clientFile = "test.zip"
 #$clientURL = "https://www.dundeecity.gov.uk/sites/default/files/publications/civic_renewal_forms.zip"
@@ -263,6 +254,9 @@ function Add-HotFixFiles{
     }
 
     #DF B26 HotFixes 0 Files
+    #TODO: If statement for any B26 hotfixes
+    
+    #DF B28 HotFixes 0 Files
     #TODO: If statement for any B26 hotfixes
 
     #Implement HotFixes
